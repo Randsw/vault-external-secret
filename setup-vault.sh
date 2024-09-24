@@ -58,3 +58,28 @@ kubectl exec -ti vault-2 -n vault -- vault operator raft join http://vault-0.vau
 
 kubectl exec -ti vault-1 -n vault -- vault operator unseal $VAULT_UNSEAL_KEY
 kubectl exec -ti vault-2 -n vault -- vault operator unseal $VAULT_UNSEAL_KEY
+
+VAULT_ROOT_TOKEN=$(jq -r ".root_token" cluster-keys.json)
+
+vault login -address http://vault.kind.cluster $VAULT_ROOT_TOKEN
+
+vault secrets enable -path=secret kv-v2
+
+vault kv put secret/webapp/config username="static-user" password="static-password"
+
+vault kv get secret/webapp/config
+
+vault auth enable kubernetes
+
+vault write auth/kubernetes/config \
+    kubernetes_host="https://kubernetes.default.svc:443"
+
+vault policy write webapp - <<EOF 
+path "secret/data/webapp/config" {   capabilities = ["read"] } 
+EOF
+
+vault write auth/kubernetes/role/webapp \
+        bound_service_account_names=webapp-service-account \
+        bound_service_account_namespaces=webapps \
+        policies=webapp \
+        ttl=24h

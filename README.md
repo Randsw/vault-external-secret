@@ -1,3 +1,8 @@
-https://mycloudjourney.medium.com/vault-installation-to-minikube-via-helm-with-integrated-storage-15c9d1a907e6
+k get secret -n app
 
-https://eminalemdar.medium.com/external-secrets-operator-integration-with-hashicorp-vault-aff3f956237b
+k describe secret -n app vault-secrets
+
+kubectl get secrets/vault-secrets -n app --template={{.data.password}} | base64 -d
+
+kubectl get secrets/vault-secrets -n app --template={{.data.user}} | base64 -d
+

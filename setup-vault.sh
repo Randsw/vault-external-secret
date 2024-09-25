@@ -42,6 +42,8 @@ server:
         - /
 EOF
 
+sleep 30
+
 kubectl exec vault-0 -n vault -- vault operator init \
     -key-shares=1 \
     -key-threshold=1 \
@@ -61,7 +63,11 @@ kubectl exec -ti vault-2 -n vault -- vault operator unseal $VAULT_UNSEAL_KEY
 
 VAULT_ROOT_TOKEN=$(jq -r ".root_token" cluster-keys.json)
 
-vault login -address http://vault.kind.cluster $VAULT_ROOT_TOKEN
+export VAULT_ADDR=http://vault.kind.cluster
+
+sleep 30
+
+vault login $VAULT_ROOT_TOKEN
 
 vault secrets enable -path=secret kv-v2
 
@@ -92,17 +98,30 @@ vault write auth/kubernetes/role/webapp \
 
 kubectl create serviceaccount vault-auth -n vault
 
+
+cat << EOF | kubectl apply -f -
 apiVersion: v1
 kind: Secret
 metadata:
   namespace: vault
   name: vault-auth
   annotations:
+    kubernetes.io/service-account.name: "vault-auth"
+type: kubernetes.io/service-account-token
+EOF
+
+cat << EOF | kubectl apply -f -
+apiVersion: v1
+kind: Secret
+metadata:
+  namespace: vault
+  name: vault
+  annotations:
     kubernetes.io/service-account.name: "vault"
 type: kubernetes.io/service-account-token
+EOF
 
-
----
+cat << EOF | kubectl apply -f -
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
@@ -116,3 +135,4 @@ subjects:
 - kind: ServiceAccount
   name: vault
   namespace: vault
+EOF

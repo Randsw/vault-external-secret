@@ -15,25 +15,26 @@ helm upgrade --install --wait --timeout 35m --atomic --namespace external-secret
 
 
 cat << EOF | kubectl apply -f -
- apiVersion: external-secrets.io/v1beta1
- kind: ClusterSecretStore
- metadata:
-   name: vault-backend
-   spec:
-     provider:
-       vault:
-         server: "http://vault.vault.svc:8200"
-         path: "secret"
-         version: "v2"
-         auth:
-           kubernetes:
-             mountPath: "kubernetes"
-             role: "eso"
-             serviceAccountRef:
-               name: "vault-auth" # имя нашего serviceAccount
-               namespace: vault
+apiVersion: external-secrets.io/v1beta1
+kind: ClusterSecretStore
+metadata:
+  name: vault-backend
+spec:
+  provider:
+    vault:
+      server: "http://vault.vault.svc:8200"
+      path: "secret"
+      version: "v2"
+      auth:
+        kubernetes:
+          mountPath: "kubernetes"
+          role: "webapp"
+          serviceAccountRef:
+            name: "vault-auth"
+            namespace: "vault"
 EOF
 
+kubectl create namespace app || true
 
 cat << EOF | kubectl apply -f -
 apiVersion: external-secrets.io/v1beta1
@@ -47,12 +48,12 @@ spec:
     name: vault-backend
     kind: ClusterSecretStore
   target:
-    name: vault-secrets # имя будущего секрета kubernetes
+    name: vault-secrets
   data:
-    - secretKey: user # ключ секрета
+    - secretKey: user
       remoteRef:
-        key: config # путь до секрета в vault
-        property: username # ключ секрета в vault
+        key: config
+        property: username
     - secretKey: password
       remoteRef:
         key: config

@@ -51,11 +51,11 @@ spec:
   data:
     - secretKey: user # ключ секрета
       remoteRef:
-        key: webapp/config # путь до секрета в vault
+        key: config # путь до секрета в vault
         property: username # ключ секрета в vault
     - secretKey: password
       remoteRef:
-        key: webapp/config
+        key: config
         property: password
 EOF
 

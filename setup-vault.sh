@@ -65,9 +65,9 @@ vault login -address http://vault.kind.cluster $VAULT_ROOT_TOKEN
 
 vault secrets enable -path=secret kv-v2
 
-vault kv put secret/webapp/config username="static-user" password="static-password"
+vault kv put -mount=secret config username="static-user" password="static-password"
 
-vault kv get secret/webapp/config
+vault kv get -mount=secret config
 
 vault auth enable kubernetes
 

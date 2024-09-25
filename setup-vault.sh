@@ -74,12 +74,20 @@ vault auth enable kubernetes
 vault write auth/kubernetes/config \
     kubernetes_host="https://kubernetes.default.svc:443"
 
-vault policy write webapp - <<EOF 
-path "secret/data/webapp/config" {   capabilities = ["read"] } 
+vault policy write eso - <<EOF
+path "secret/*" {
+    capabilities = ["read", "list"]
+}
+
+path "auth/token/renew-self" {
+    capabilities = ["update"]
+}
 EOF
 
 vault write auth/kubernetes/role/webapp \
-        bound_service_account_names=webapp-service-account \
-        bound_service_account_namespaces=webapps \
-        policies=webapp \
+        bound_service_account_names=vault-auth \
+        bound_service_account_namespaces=vault \
+        policies=eso \
         ttl=24h
+
+kubectl create serviceaccount vault-auth -n vault

@@ -91,3 +91,28 @@ vault write auth/kubernetes/role/webapp \
         ttl=24h
 
 kubectl create serviceaccount vault-auth -n vault
+
+apiVersion: v1
+kind: Secret
+metadata:
+  namespace: vault
+  name: vault-auth
+  annotations:
+    kubernetes.io/service-account.name: "vault"
+type: kubernetes.io/service-account-token
+
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+   name: role-tokenreview-binding
+   namespace: vault
+roleRef:
+   apiGroup: rbac.authorization.k8s.io
+   kind: ClusterRole
+   name: system:auth-delegator
+subjects:
+- kind: ServiceAccount
+  name: vault
+  namespace: vault

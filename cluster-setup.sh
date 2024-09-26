@@ -86,31 +86,6 @@ subnet_to_ip(){
   echo $1 | sed "s@0.0/16@$2@"
 }
 
-root_ca(){
-  log "ROOT CERTIFICATE ..."
-
-  mkdir -p .ssl
-
-  if [[ -f ".ssl/root-ca.pem" && -f ".ssl/root-ca-key.pem" ]]
-  then
-    echo "Root certificate already exists, skipping"
-  else
-    openssl genrsa -out .ssl/root-ca-key.pem 2048
-    openssl req -x509 -new -nodes -key .ssl/root-ca-key.pem -days 3650 -sha256 -out .ssl/root-ca.pem -subj "/CN=kube-ca"
-    echo "Root certificate created"
-  fi
-}
-
-install_ca(){
-  log "INSTALL CERTIFICATE AUTHORITY ..."
-
-  sudo mkdir -p /usr/local/share/ca-certificates/kind.cluster
-
-  sudo cp -f .ssl/root-ca.pem /usr/local/share/ca-certificates/kind.cluster/ca.crt
-
-  sudo update-ca-certificates
-}
-
 cluster(){
   local NAME=${1:-kind}
 
@@ -215,8 +190,6 @@ cleanup(){
 cleanup
 network
 proxies
-root_ca
-install_ca
 cluster
 metallb
 ingress

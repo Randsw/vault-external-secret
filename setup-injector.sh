@@ -14,7 +14,7 @@ log "Setup app that use Vault injector ..."
 kubectl create namespace app || true
 
 # Create service account for role
-kubectl create serviceaccount webapp-auth -n app
+kubectl create serviceaccount webapp-auth -n app || true
 
 # Add secret to service account vault-auth (from kubernetes 1.24 service account created without tokens)
 cat << EOF | kubectl apply -f -
@@ -49,6 +49,10 @@ spec:
         vault.hashicorp.com/role: "webapp"
         vault.hashicorp.com/tls-skip-verify: "true"
         vault.hashicorp.com/agent-inject-secret-config: secret/config
+        vault.hashicorp.com/agent-inject-template-config: |
+          {{- with secret "secret/config" -}}
+          {{ .Data.data | toJSON }}
+          {{- end }}
       labels:
         app: webapp
     spec:

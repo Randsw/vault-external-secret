@@ -24,15 +24,23 @@ Run `./setup-external-secret-operator.sh`
 
 Run `k get secret -n app`
 
+![alt text](/media/secret-a.png)
+
 ## Describe secret
 
 `k describe secret -n app vault-secrets`
+
+![alt text](/media/secret-b.png)
 
 ## Check sensetive values
 
 `kubectl get secrets/vault-secrets -n app --template={{.data.password}} | base64 -d`
 
+![alt text](/media/secret-d.png)
+
 `kubectl get secrets/vault-secrets -n app --template={{.data.user}} | base64 -d`
+
+![alt text](/media/secret-c.png)
 
 ## How it works
 
@@ -43,6 +51,23 @@ After install ESO(External Secret Operator) we create two CRD - one for connecti
 
 ## Bonus - Vault Injector
 
+For inject Vault secret in pod we need to add special annotation:
+
+```bash
+        vault.hashicorp.com/agent-inject: "true"
+        vault.hashicorp.com/role: "webapp"
+        vault.hashicorp.com/tls-skip-verify: "true"
+        vault.hashicorp.com/agent-inject-secret-config: secret/config
+        vault.hashicorp.com/agent-inject-template-config: |
+          {{- with secret "secret/config" -}}
+          {{ .Data.data | toJSON }}
+          {{- end }}
+```
+
+Last annotation configure templating - i choose simple JSON presentation
+
 Run `./setup-injector.sh`
 
-Check webapp pod in app namespace
+Check webapp pod logs in app namespace
+
+![alt text](/media/secret-e.png)

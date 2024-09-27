@@ -41,7 +41,7 @@ server:
         paths: 
         - /
 EOF
-
+# Wait Vault to downloaded and installed
 sleep 30
 
 # Get Vault unseal and root key
@@ -66,6 +66,7 @@ VAULT_ROOT_TOKEN=$(jq -r ".root_token" cluster-keys.json)
 
 export VAULT_ADDR=http://vault.kind.cluster
 
+# Wait Vault is ready...
 sleep 30
 
 vault login $VAULT_ROOT_TOKEN
@@ -90,8 +91,8 @@ path "auth/token/renew-self" {
     capabilities = ["update"]
 }
 EOF
-# Create role and bind in to our read policy and to service account in cluster
-vault write auth/kubernetes/role/webapp \
+# Create role and bind in to our read policy and to service account in cluster for ESO
+vault write auth/kubernetes/role/eso \
         bound_service_account_names=vault-auth \
         bound_service_account_namespaces=vault \
         policies=eso \
@@ -137,3 +138,11 @@ subjects:
   name: vault
   namespace: vault
 EOF
+
+# Create role and bind in to our read policy and to service account in cluster for webapp (Vault Injector)
+vault write auth/kubernetes/role/webapp \
+        bound_service_account_names=webapp-auth \
+        bound_service_account_namespaces=app \
+        policies=eso \
+        ttl=24h
+

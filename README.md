@@ -40,3 +40,9 @@ We configure `Vault` to use `kubernetes auth` with service accounts. To make `Va
 Next we create policy and role to access our secret in Vault key-value store using proper service account `vault-auth`.
 
 After install ESO(External Secret Operator) we create two CRD - one for connecting to `Vault` using service-account `vault-auth`(ClusterSecretStore) and one for sync secret from `Vault` to cluster(ExternalSecret). If all goes as planned we can see that secret `vault-secret` in namespace app contain our data from `Vault`.
+
+## Bonus - Vault Injector
+
+Run `./setup-injector.sh`
+
+Check webapp pod in app namespace

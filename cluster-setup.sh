@@ -175,14 +175,13 @@ EOF
 dnsmasq(){
   log "Hosts ..."
   local INGRESS_LB_IP=$(get_service_lb_ip ingress-nginx ingress-nginx-controller)
-  echo "$INGRESS_LB_IP vault.kind.cluster" | sudo tee -a /etc/hosts
+  echo "$INGRESS_LB_IP vault.kind.cluster webapp.kind.cluster" | sudo tee -a /etc/hosts
 }
 
 cleanup(){
   log "CLEANUP ..."
   sudo sed -i '/argocd.kind.cluster$/d' /etc/hosts
   kind delete cluster || true
-  sudo rm -rf /usr/local/share/ca-certificates/kind.cluster
 }
 
 # RUN

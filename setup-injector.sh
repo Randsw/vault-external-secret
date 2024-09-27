@@ -60,24 +60,9 @@ spec:
       automountServiceAccountToken: true
       containers:
       - name: webapp
-        image: dengelhardt1/alpine-curl-non-root:v1.0.0
-        command:
-          - /bin/sh
-          - -c
-        args:
-          - |
-            cat /vault/secrets/config
-            while true;do sleep 1;done
-        securityContext:
-          allowPrivilegeEscalation: false
-          capabilities:
-            drop:
-            - ALL
-          readOnlyRootFilesystem: true
-          runAsNonRoot: true
-          privileged: false
-          seccompProfile:
-            type: RuntimeDefault
+        image: ghcr.io/randsw/vault-injector-webapp
+        ports:
+        - containerPort: 8080
 EOF
 
 # Add service to access web app
@@ -106,7 +91,7 @@ metadata:
 spec:
   ingressClassName: nginx
   rules:
-    - host: "foo.bar.com"
+    - host: "webapp.kind.cluster"
       http:
         paths:
         - path: /

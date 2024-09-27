@@ -28,7 +28,7 @@ spec:
       auth:
         kubernetes:
           mountPath: "kubernetes"
-          role: "webapp"
+          role: "eso"
           serviceAccountRef:
             name: "vault-auth"
             namespace: "vault"

@@ -22,13 +22,13 @@ Run `./setup-external-secret-operator.sh`
 
 ## Check secret in app namespace
 
-Run `k get secret -n app`
+Run `kubectl get secret -n app`
 
 ![alt text](/media/secret-a.png)
 
 ## Describe secret
 
-`k describe secret -n app vault-secrets`
+`kubectl describe secret -n app vault-secrets`
 
 ![alt text](/media/secret-b.png)
 
@@ -68,6 +68,8 @@ Last annotation configure templating - i choose simple JSON presentation
 
 Run `./setup-injector.sh`
 
-Check webapp pod logs in app namespace
+Check webapp using `curl`
+
+Run `curl webapp.kind.cluster`
 
 ![alt text](/media/secret-e.png)
